@@ -1,5 +1,5 @@
 # ms-stream-space
-Bring Youtube like space bar behaviour to MS Stream
+Userscript - Bring Youtube like space bar behaviour to MS Stream
 <h2>Info</h2>
 <b>by DRE LABS </b></br>
 This userscript brings Youtube like space bar behaviour to MS Stream. </br>
