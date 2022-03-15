@@ -1,0 +1,84 @@
+// ==UserScript==
+// @name         MS Stream space bar issue - bring Youtube behaviour
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  This script brings Youtube like space bar behaviour to MS Stream
+// @author       DRE LABS
+// @include      https://web.microsoftstream.com/video/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=microsoftstream.com
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    /* by DRE LABS */
+    /* This script brings Youtube like space bar behaviour to MS Stream. */
+    /* Before - space bar press would repeat the last click made via mouse in a video player window, e.g. play/pause, window resize, play speed. */
+    /* Now - in whole browser window (except textareas) space bar will play/pause video. Mimics Youtube behaviour. */
+    /* Bugs - sometimes double click of space is needed after mouse click on player window. To be fixed. */
+
+    //fx checks if cursor is inside the textbox where space bar has to act as an actual space
+    function focusedOutsideInput(){
+        var name = document.activeElement.tagName;
+        if(name == 'TEXTAREA' || name == 'INPUT'){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+    //fx checks the state of play/pause button
+    function statec(el){
+        if(el.getAttribute("title") == 'Pause'){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    //fx main code
+    function main(){
+        //finds correct button
+        var btn;
+        var x = document.getElementsByTagName("button");
+        for (var i = 0; i<x.length; i++){
+            console.log(x[i].getAttribute("title"))
+            if (x[i].getAttribute("title") == 'Pause'){
+                btn = x[i]
+            }
+        }
+        //introduce state variable to eliminate double clicks
+        //double clicks arrise due to odly implemented space bar functionality by MS. When player window is pressed, the space bar gets assigned play/pause functionality
+        //this functionality escapes the listener elimination via setting document.onkeydown/onkeyup function to return false, even if it is pushed in setInterval(fx(),10).
+        //I do not know how MS achieved this
+        var state=true; //true - on; false - off
+        //onkeydown and key up us both have some default behvaiour which is unwanted
+        document.body.onkeyup = function(e){
+            if(e.keyCode == 32){ //32 is space bar
+                if(focusedOutsideInput()){
+                    e.preventDefault();
+                    if(statec(btn) == state){
+                        btn.click();
+                        ((state==true)? (state=false) : (state=true));
+                    }
+                    else{
+                        ((state==true)? (state=false) : (state=true));
+                    }
+                }
+            }
+        }
+        document.body.onkeydown = function(e){
+            if(e.keyCode == 32){
+                if(focusedOutsideInput()){
+                    e.preventDefault();
+                }
+            }
+        }
+    }
+
+    window.onload = function(e){ // video player excapes .onload, hence the long timeout.
+        setTimeout(main, 6000);
+    }
+
+})();
